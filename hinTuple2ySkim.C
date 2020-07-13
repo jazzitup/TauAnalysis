@@ -20,11 +20,12 @@ void hinTuple2ySkim( int nevt = -1) {
   using namespace std;
 
   TString fname =  "upcDatahinTupleExample.root";
-  TFile* f1  = new TFile(fname.Data());
+  //  TFile* f1  = new TFile(fname.Data());
   
-  //  TChain *hltTree = new TChain("hltanalysis/HltTree");
-  TTree *hltTree = (TTree*)f1->Get("hltanalysis/HltTree");
-
+  TChain *hltTree = new TChain("hltanalysis/HltTree");
+  //  TTree *hltTree = (TTree*)f1->Get("hltanalysis/HltTree");
+  hltTree->Add(fname);
+  
   int trigger0 ; 
   TBranch        *b_trigger0;
   hltTree->SetBranchAddress("HLT_HIUPC_SingleMuOpen_NotMBHF2AND_v1", &trigger0, &b_trigger0);
@@ -34,8 +35,9 @@ void hinTuple2ySkim( int nevt = -1) {
 
 
     
-  //  TChain *mytree = new TChain("ggHiNtuplizer/EventTree");
-  TTree *mytree = (TTree*)f1->Get("ggHiNtuplizer/EventTree");
+  TChain *mytree = new TChain("ggHiNtuplizer/EventTree");
+  //  TTree *mytree = (TTree*)f1->Get("ggHiNtuplizer/EventTree");
+  mytree->Add(fname);
   
   Int_t   nEle;
 
