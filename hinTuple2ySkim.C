@@ -19,12 +19,15 @@ void hinTuple2ySkim( int nevt = -1) {
 
   using namespace std;
 
-  TString fname =  "upcDatahinTupleExample.root";
+  //  TString fname =  "/eos/cms/store/group/phys_diffraction/lbyl_2018/HIForward_Reco/ntuples/ntuples_data/HIForward/ntuples_data_lbl/*/*/*.root";
+  TString fname = "/eos/cms/store/group/phys_diffraction/lbyl_2018/HIForward_Reco/ntuples/ntuples_data/HIForward/ntuples_data_lbl/200617_140125/0000/*.root";
+
+  //  TString fname = "upcDatahinTupleExample.root";
   //  TFile* f1  = new TFile(fname.Data());
   
   TChain *hltTree = new TChain("hltanalysis/HltTree");
   //  TTree *hltTree = (TTree*)f1->Get("hltanalysis/HltTree");
-  hltTree->Add(fname);
+  hltTree->Add(fname.Data());
   
   int trigger0 ; 
   TBranch        *b_trigger0;
@@ -37,7 +40,7 @@ void hinTuple2ySkim( int nevt = -1) {
     
   TChain *mytree = new TChain("ggHiNtuplizer/EventTree");
   //  TTree *mytree = (TTree*)f1->Get("ggHiNtuplizer/EventTree");
-  mytree->Add(fname);
+  mytree->Add(fname.Data());
   
   Int_t   nEle;
   vector<float>   *eleEta;
@@ -104,9 +107,12 @@ void hinTuple2ySkim( int nevt = -1) {
   
   // event loop start
   if(nevt == -1) nevt = mytree->GetEntries();
+
+  cout << " total number of events = " << nevt << endl;
+
   for(int iev=0; iev<nevt ; ++iev)
   {
-    if ( iev%1000 == 0 )
+    if ( iev%10000 == 0 )
       cout << iev <<"/"<<nevt << " ("<< int(iev*100./nevt) <<"%%) are done" << endl;
     
     hltTree->GetEntry(iev);
@@ -123,7 +129,7 @@ void hinTuple2ySkim( int nevt = -1) {
       continue;
     
     trig = trigger0;
-    
+    cout << " found!" << endl;
     //    cout << "nEle = " << nEle << endl;
     //    cout << "pt = " << elePt->at(0) << endl;
     //    cout << "eta = " << eleEta->at(0) << endl;
