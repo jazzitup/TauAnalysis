@@ -40,44 +40,107 @@ void hinTuple2ySkim( int nevt = -1) {
   mytree->Add(fname);
   
   Int_t   nEle;
-
   vector<float>   *eleEta;
   vector<float>   *elePhi;
   vector<float>   *elePt;
-
-  eleEta=0;
+  eleEta=0;  // This initialization is CRUCIAL.  DON'T DELETE! 
   elePt=0;
   elePhi=0;
-    
   TBranch        *b_nEle;   //!
   TBranch        *b_elePt;   //!
   TBranch        *b_eleEta;   //!
   TBranch        *b_elePhi;   //!
-  
+
+  Int_t           nTrk;
+  TBranch        *b_nTrk;   //!
+
   mytree->SetBranchAddress("nEle", &nEle, &b_nEle);
   mytree->SetBranchAddress("elePt", &elePt, &b_elePt);
   mytree->SetBranchAddress("eleEta", &eleEta, &b_eleEta);
   mytree->SetBranchAddress("elePhi", &elePhi, &b_elePhi);
+  mytree->SetBranchAddress("nTrk", &nTrk, &b_nTrk);
 
+
+  // muon
+  Int_t           nMu;
+  vector<float>   *muPt;
+  vector<float>   *muEta;
+  vector<float>   *muPhi;
+
+  TBranch        *b_nMu;   //!
+  TBranch        *b_muPt;   //!
+  TBranch        *b_muEta;   //!
+  TBranch        *b_muPhi;   //!
+
+  
+  muPt = 0;
+  muEta = 0;
+  muPhi = 0;
+  mytree->SetBranchAddress("nMu", &nMu, &b_nMu);
+  mytree->SetBranchAddress("muPt", &muPt, &b_muPt);
+  mytree->SetBranchAddress("muEta", &muEta, &b_muEta);
+  mytree->SetBranchAddress("muPhi", &muPhi, &b_muPhi);
+   
+  
+  // Output Tree:
+  TTree *outt = new TTree("tau","Tau Tree");
+  outt->SetMaxTreeSize(MAXTREESIZE);
+  
+  float mPt, mEta, mPhi, ePt, ePhi, eEta;
+  int trig; 
+  outt->Branch("mPt", &mPt, "mPt/F");
+  outt->Branch("mEta", &mEta, "mEta/F");
+  outt->Branch("mPhi", &mPhi, "mPhi/F");
+  outt->Branch("ePt", &ePt, "ePt/F");
+  outt->Branch("eEta", &eEta, "eEta/F");
+  outt->Branch("ePhi", &ePhi, "ePhi/F");
+  outt->Branch("nTrk", &nTrk, "nTrk/I"); // Resue nTrk from MyTree
+  outt->Branch("trig", &trig, "trig/I"); // Resue nTrk from MyTree
+  
+  
+  
+  
   //  mytree->Add(fname.Data());
   
   // event loop start
   if(nevt == -1) nevt = mytree->GetEntries();
   for(int iev=0; iev<nevt ; ++iev)
   {
-
+    if ( iev%1000 == 0 )
+      cout << iev <<"/"<<nevt << " ("<< int(iev*100./nevt) <<"%%) are done" << endl;
+    
     hltTree->GetEntry(iev);
     mytree->GetEntry(iev);
-
-    //    cout << " trigger0 =" << trigger0 << endl;
-    //    cout << " nEle = " << nEle << endl;
-    if ( nEle>0)   {
-      cout << "nEle = " << nEle << endl;
-      cout << "pt = " << elePt->at(0) << endl;
-      cout << "eta = " << eleEta->at(0) << endl;
-      cout << "phi = " << elePhi->at(0) << endl;
-      
-    }
     
+    //    cout << " trigger0 =" << trigger0 << endl;
+    if ( trigger0 != 1 )
+      continue;
+    if ( nEle != 1 )
+      continue;
+    if ( nMu != 1 )
+      continue;
+    if ( nTrk > 3 )
+      continue;
+    
+    trig = trigger0;
+    
+    //    cout << "nEle = " << nEle << endl;
+    //    cout << "pt = " << elePt->at(0) << endl;
+    //    cout << "eta = " << eleEta->at(0) << endl;
+    //    cout << "phi = " << elePhi->at(0) << endl;
+    //    cout << "nTrk = " << nTrk << endl;
+
+    ePt = elePt->at(0);
+    eEta = eleEta->at(0);
+    ePhi = elePhi->at(0);
+    mPt = muPt->at(0);
+    mEta = muEta->at(0);
+    mPhi = muPhi->at(0);
+
+    outt->Fill();
   }
+
+  TFile* outf = new TFile("output.root","recreate");
+  outt->Write();
+  outf->Close();
 }
